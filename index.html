@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>DroomerTube</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>DroomerTube</h1>
+  <button onclick="window.location.href='upload.html'">Upload Video</button>
+  <div id="video-list"></div>
+
+  <script>
+    async function loadVideos() {
+      const res = await fetch('https://raw.githubusercontent.com/YourUser/YourRepo/main/videos.json');
+      const videos = await res.json();
+      const container = document.getElementById("video-list");
+
+      videos.forEach(video => {
+        const thumb = document.createElement("video");
+        thumb.src = video.thumb || video.url;
+        thumb.controls = false;
+        thumb.width = 300;
+        thumb.onclick = () => {
+          localStorage.setItem("watch", JSON.stringify(video));
+          window.location.href = "video.html";
+        };
+        container.appendChild(thumb);
+      });
+    }
+
+    loadVideos();
+  </script>
+</body>
+</html>

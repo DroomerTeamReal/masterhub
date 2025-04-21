@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Watch Video</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="player"></div>
+  <div>
+    <button onclick="like()">👍 Like (<span id="likes">0</span>)</button>
+    <button onclick="dislike()">👎 Dislike (<span id="dislikes">0</span>)</button>
+  </div>
+  <div>
+    <h3>Comments</h3>
+    <textarea id="commentBox"></textarea>
+    <button onclick="comment()">Post</button>
+    <ul id="comments"></ul>
+  </div>
+
+  <script>
+    const video = JSON.parse(localStorage.getItem("watch"));
+    const id = video.id;
+
+    const vid = document.createElement("video");
+    vid.src = video.url;
+    vid.controls = true;
+    vid.width = 800;
+    document.getElementById("player").appendChild(vid);
+
+    function loadStats() {
+      document.getElementById("likes").textContent = localStorage.getItem(`like_${id}`) || 0;
+      document.getElementById("dislikes").textContent = localStorage.getItem(`dislike_${id}`) || 0;
+      const comments = JSON.parse(localStorage.getItem(`comment_${id}`) || "[]");
+      document.getElementById("comments").innerHTML = "";
+      comments.forEach(c => {
+        const li = document.createElement("li");
+        li.textContent = c;
+        document.getElementById("comments").appendChild(li);
+      });
+    }
+
+    function like() {
+      const c = parseInt(localStorage.getItem(`like_${id}`) || 0) + 1;
+      localStorage.setItem(`like_${id}`, c);
+      loadStats();
+    }
+
+    function dislike() {
+      const c = parseInt(localStorage.getItem(`dislike_${id}`) || 0) + 1;
+      localStorage.setItem(`dislike_${id}`, c);
+      loadStats();
+    }
+
+    function comment() {
+      const txt = document.getElementById("commentBox").value;
+      if (!txt) return;
+      const list = JSON.parse(localStorage.getItem(`comment_${id}`) || "[]");
+      list.push(txt);
+      localStorage.setItem(`comment_${id}`, JSON.stringify(list));
+      document.getElementById("commentBox").value = "";
+      loadStats();
+    }
+
+    loadStats();
+  </script>
+</body>
+</html>

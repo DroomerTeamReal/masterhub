@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Upload Video</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Upload Video</h1>
+  <input type="file" id="file" accept="video/*"><br>
+  <input type="text" id="title" placeholder="Video Title"><br>
+  <input type="text" id="token" placeholder="GitHub Token"><br>
+  <button onclick="upload()">Upload</button>
+
+  <script>
+    async function upload() {
+      const file = document.getElementById("file").files[0];
+      const title = document.getElementById("title").value;
+      const token = document.getElementById("token").value;
+      if (!file || !title || !token) return alert("Fill all fields");
+
+      const form = new FormData();
+      form.append("reqtype", "fileupload");
+      form.append("fileToUpload", file);
+
+      // Upload to Catbox
+      const catboxRes = await fetch("https://catbox.moe/user/api.php", {
+        method: "POST",
+        body: form
+      });
+
+      const catboxUrl = await catboxRes.text();
+
+      // Get videos.json from GitHub
+      const repo = "YourUser/YourRepo";
+      const path = "videos.json";
+      const apiUrl = `https://api.github.com/repos/${repo}/contents/${path}`;
+      const res = await fetch(apiUrl, {
+        headers: { Authorization: `token ${token}` }
+      });
+      const json = await res.json();
+      const sha = json.sha;
+      const existing = JSON.parse(atob(json.content));
+
+      // Add new video
+      const id = Date.now();
+      existing.push({ id, title, url: catboxUrl, thumb: catboxUrl });
+
+      // Upload updated JSON
+      await fetch(apiUrl, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `token ${token}` },
+        body: JSON.stringify({
+          message: `Add video ${title}`,
+          content: btoa(JSON.stringify(existing, null, 2)),
+          sha
+        })
+      });
+
+      alert("Uploaded!");
+      location.href = "index.html";
+    }
+  </script>
+</body>
+</html>

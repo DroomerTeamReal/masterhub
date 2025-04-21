@@ -1,0 +1,16 @@
+body {
+    background: #141414;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    padding: 20px;
+  }
+  
+  video {
+    margin: 10px;
+  }
+  
+  textarea {
+    width: 100%;
+    height: 80px;
+  }
+  
